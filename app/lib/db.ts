@@ -1,24 +1,19 @@
-import { MongoClient, Db, Collection } from "mongodb";
-import { Product, Category } from "./schema";
+import { PrismaClient } from "@prisma/client";
 
-let client: MongoClient;
-let db: Db;
-
-export async function connectToDatabase() {
-  if (!client) {
-    client = new MongoClient(process.env.MONGODB_URI as string);
-    await client.connect();
-    db = client.db();
-  }
-  return { client, db };
+declare global {
+  var prisma: PrismaClient | undefined;
 }
 
-export async function getProductsCollection(): Promise<Collection<Product>> {
-  const { db } = await connectToDatabase();
-  return db.collection<Product>("products");
-}
+const prisma =
+  global.prisma ||
+  new PrismaClient({
+    datasources: {
+      db: {
+        url: process.env.DATABASE_URL,
+      },
+    },
+  });
 
-export async function getCategoriesCollection(): Promise<Collection<Category>> {
-  const { db } = await connectToDatabase();
-  return db.collection<Category>("categories");
-}
+if (process.env.NODE_ENV !== "production") global.prisma = prisma;
+
+export default prisma;

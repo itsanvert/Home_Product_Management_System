@@ -21,9 +21,9 @@ export default function ProductForm({
     name: "",
     description: "",
     price: "",
-    categoryId: "",
+    category_id: "",
     stock: "",
-    imageUrl: "",
+    image_url: "",
   });
   const [imagePreview, setImagePreview] = useState<string>("");
   const [imageFile, setImageFile] = useState<File | null>(null);
@@ -36,11 +36,11 @@ export default function ProductForm({
         name: product.name,
         description: product.description || "",
         price: product.price.toString(),
-        categoryId: product.categoryId,
+        category_id: product.category_id,
         stock: product.stock.toString(),
-        imageUrl: product.imageUrl || "",
+        image_url: product.image_url || "",
       });
-      setImagePreview(product.imageUrl || "");
+      setImagePreview(product.image_url || "");
     }
   }, [product]);
 
@@ -59,7 +59,7 @@ export default function ProductForm({
 
   const handleImageUrlChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const url = e.target.value;
-    setFormData({ ...formData, imageUrl: url });
+    setFormData({ ...formData, image_url: url });
     setImagePreview(url);
     setImageFile(null);
   };
@@ -91,7 +91,7 @@ export default function ProductForm({
     setIsUploading(true);
 
     try {
-      let finalImageUrl = formData.imageUrl;
+      let finalImageUrl = formData.image_url;
 
       // If there's a file to upload, upload it first
       if (imageFile) {
@@ -100,7 +100,7 @@ export default function ProductForm({
         } catch (error) {
           // If upload fails, continue without image or use the URL if provided
           console.error("Image upload failed, continuing without image");
-          finalImageUrl = formData.imageUrl;
+          finalImageUrl = formData.image_url;
         }
       }
 
@@ -108,7 +108,7 @@ export default function ProductForm({
         ...formData,
         price: parseFloat(formData.price),
         stock: parseInt(formData.stock),
-        imageUrl: finalImageUrl,
+        image_url: finalImageUrl,
       });
     } catch (error) {
       console.error("Form submission failed:", error);
@@ -120,7 +120,7 @@ export default function ProductForm({
   const removeImage = () => {
     setImagePreview("");
     setImageFile(null);
-    setFormData({ ...formData, imageUrl: "" });
+    setFormData({ ...formData, image_url: "" });
     if (fileInputRef.current) {
       fileInputRef.current.value = "";
     }
@@ -203,7 +203,7 @@ export default function ProductForm({
                 </label>
                 <input
                   type="url"
-                  value={formData.imageUrl}
+                  value={formData.image_url}
                   onChange={handleImageUrlChange}
                   placeholder="https://example.com/image.jpg"
                   className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-colors text-sm"
@@ -236,9 +236,9 @@ export default function ProductForm({
               </label>
               <select
                 required
-                value={formData.categoryId}
+                value={formData.category_id}
                 onChange={(e) =>
-                  setFormData({ ...formData, categoryId: e.target.value })
+                  setFormData({ ...formData, category_id: e.target.value })
                 }
                 className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-colors"
               >

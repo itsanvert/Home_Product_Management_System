@@ -65,7 +65,7 @@ export default function CategoryList({
                 )}
                 <p className="text-xs text-gray-400 mt-2">
                   បានបង្កើត:{" "}
-                  {new Date(category.createdAt).toLocaleDateString("km-KH")}
+                  {new Date(category.created_at).toLocaleDateString("km-KH")}
                 </p>
               </div>
 

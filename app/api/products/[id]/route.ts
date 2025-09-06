@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getProductsCollection, getCategoriesCollection } from "@/app/lib/db";
+import prisma from "@/app/lib/db";
 
 export async function PUT(
   request: NextRequest,
@@ -8,11 +8,12 @@ export async function PUT(
   try {
     const { id } = await params;
     const body = await request.json();
-    const { name, description, price, categoryId, stock, imageUrl } = body;
+    const { name, description, price, category_id, stock, image_url } = body;
 
-    // Get category name
-    const categories = await getCategoriesCollection();
-    const category = await categories.findOne({ id: categoryId });
+    // Get category
+    const category = await prisma.category.findUnique({
+      where: { id: category_id },
+    });
 
     if (!category) {
       return NextResponse.json(
@@ -21,26 +22,26 @@ export async function PUT(
       );
     }
 
-    const products = await getProductsCollection();
+    const updatedProduct = await prisma.product.update({
+      where: { id },
+      data: {
+        name,
+        description: description || "",
+        price: parseFloat(price),
+        category_id,
+        stock: parseInt(stock),
+        image_url: image_url || "",
+      },
+      include: {
+        category: true,
+      },
+    });
 
-    const updatedProduct = {
-      name,
-      description: description || "",
-      price: parseFloat(price),
-      categoryId,
-      categoryName: category.name,
-      stock: parseInt(stock),
-      imageUrl: imageUrl || "",
-      updatedAt: new Date(),
-    };
-
-    const result = await products.updateOne({ id }, { $set: updatedProduct });
-
-    if (result.matchedCount === 0) {
-      return NextResponse.json({ error: "Product not found" }, { status: 404 });
-    }
-
-    return NextResponse.json({ success: true });
+    return NextResponse.json({
+      ...updatedProduct,
+      created_at: updatedProduct.created_at.toISOString(),
+      updated_at: updatedProduct.updated_at.toISOString(),
+    });
   } catch (error) {
     console.error("Failed to update product:", error);
     return NextResponse.json(
@@ -56,14 +57,10 @@ export async function DELETE(
 ) {
   try {
     const { id } = await params;
-    const products = await getProductsCollection();
 
-    const result = await products.deleteOne({ id });
-
-    if (result.deletedCount === 0) {
-      return NextResponse.json({ error: "Product not found" }, { status: 404 });
-    }
-
+    await prisma.product.delete({
+      where: { id },
+    });
     return NextResponse.json({ success: true });
   } catch (error) {
     console.error("Failed to delete product:", error);

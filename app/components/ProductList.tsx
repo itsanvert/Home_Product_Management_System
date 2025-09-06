@@ -50,9 +50,9 @@ export default function ProductList({
           className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden hover:shadow-md transition-shadow duration-200"
         >
           <div className="relative aspect-square bg-gray-100">
-            {product.imageUrl ? (
+            {product.image_url ? (
               <Image
-                src={product.imageUrl}
+                src={product.image_url}
                 alt={product.name}
                 fill
                 className="object-cover"
@@ -100,7 +100,7 @@ export default function ProductList({
                 {product.name}
               </h3>
               <span className="inline-block px-2 py-1 text-xs font-medium bg-blue-100 text-blue-800 rounded-full">
-                {product.categoryName}
+                {product.category_name}
               </span>
             </div>
 
@@ -133,7 +133,7 @@ export default function ProductList({
 
             <div className="mt-3 text-xs text-gray-500">
               ធ្វើបច្ចុប្បន្នភាព:{" "}
-              {new Date(product.updatedAt).toLocaleDateString("km-KH")}
+              {new Date(product.updated_at).toLocaleDateString("km-KH")}
             </div>
           </div>
         </div>

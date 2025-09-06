@@ -68,7 +68,7 @@ export default function Home() {
 
       if (categoryId) {
         filtered = filtered.filter(
-          (product) => product.categoryId === categoryId
+          (product) => product.category_id === categoryId
         );
       }
 
@@ -189,7 +189,7 @@ export default function Home() {
   };
 
   const handleDeleteCategory = async (id: string) => {
-    const productsInCategory = products.filter((p) => p.categoryId === id);
+    const productsInCategory = products.filter((p) => p.category_id === id);
 
     if (productsInCategory.length > 0) {
       if (

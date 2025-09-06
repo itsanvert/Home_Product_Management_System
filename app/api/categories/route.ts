@@ -1,14 +1,18 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getCategoriesCollection } from "@/app/lib/db";
-import { ObjectId } from "mongodb";
+import prisma from "@/app/lib/db";
 
 export async function GET() {
   try {
-    const categories = await getCategoriesCollection();
-    const categoryList = await categories.find({}).toArray();
-
-    return NextResponse.json(categoryList);
-  } catch {
+    const allCategories = await prisma.category.findMany();
+    return NextResponse.json(
+      allCategories.map((category) => ({
+        ...category,
+        created_at: category.created_at.toISOString(),
+        updated_at: category.updated_at.toISOString(),
+      }))
+    );
+  } catch (error) {
+    console.error("Failed to fetch categories:", error);
     return NextResponse.json(
       { error: "Failed to fetch categories" },
       { status: 500 }
@@ -21,19 +25,18 @@ export async function POST(request: NextRequest) {
     const body = await request.json();
     const { name, description } = body;
 
-    const categories = await getCategoriesCollection();
+    const newCategory = await prisma.category.create({
+      data: {
+        name,
+        description: description || "",
+      },
+    });
 
-    const newCategory = {
-      id: new ObjectId().toString(),
-      name,
-      description: description || "",
-      createdAt: new Date(),
-      updatedAt: new Date(),
-    };
-
-    const result = await categories.insertOne(newCategory);
-
-    return NextResponse.json({ ...newCategory, _id: result.insertedId });
+    return NextResponse.json({
+      ...newCategory,
+      created_at: newCategory.created_at.toISOString(),
+      updated_at: newCategory.updated_at.toISOString(),
+    });
   } catch {
     return NextResponse.json(
       { error: "Failed to create category" },

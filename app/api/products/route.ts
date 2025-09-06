@@ -1,11 +1,22 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getProductsCollection, getCategoriesCollection } from "@/app/lib/db";
+import prisma from "@/app/lib/db";
 
 export async function GET() {
   try {
-    const products = await getProductsCollection();
-    const allProducts = await products.find({}).toArray();
-    return NextResponse.json(allProducts);
+    const products = await prisma.product.findMany({
+      include: {
+        category: true,
+      },
+    });
+
+    const productList = products.map((product) => ({
+      ...product,
+      created_at: product.created_at.toISOString(),
+      updated_at: product.updated_at.toISOString(),
+      categoryName: product.category?.name || "Unknown",
+    }));
+
+    return NextResponse.json(productList);
   } catch (error) {
     console.error("Failed to fetch products:", error);
     return NextResponse.json(
@@ -18,36 +29,39 @@ export async function GET() {
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    const { name, description, price, categoryId, stock, imageUrl } = body;
+    const { name, description, price, category_id, stock, image_url } = body;
 
     // Get category name
-    const categories = await getCategoriesCollection();
-    const category = await categories.findOne({ id: categoryId });
+    const category = await prisma.category.findUnique({
+      where: { id: category_id },
+    });
 
     if (!category) {
       return NextResponse.json(
         { error: "Category not found" },
-        { status: 400 }
+        { status: 404 }
       );
     }
 
-    const products = await getProductsCollection();
+    const newProduct = await prisma.product.create({
+      data: {
+        name,
+        description: description || "",
+        price: parseFloat(price),
+        category_id,
+        stock: parseInt(stock),
+        image_url: image_url || "",
+      },
+    });
 
-    const newProduct = {
-      id: Date.now().toString(),
-      name,
-      description: description || "",
-      price: parseFloat(price),
-      categoryId,
-      categoryName: category.name,
-      stock: parseInt(stock),
-      imageUrl: imageUrl || "",
-      createdAt: new Date(),
-      updatedAt: new Date(),
-    };
-
-    await products.insertOne(newProduct);
-    return NextResponse.json(newProduct, { status: 201 });
+    return NextResponse.json(
+      {
+        ...newProduct,
+        created_at: newProduct.created_at.toISOString(),
+        updated_at: newProduct.updated_at.toISOString(),
+      },
+      { status: 201 }
+    );
   } catch (error) {
     console.error("Failed to create product:", error);
     return NextResponse.json(
