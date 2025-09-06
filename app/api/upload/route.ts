@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { writeFile } from 'fs/promises';
+import { writeFile, mkdir } from 'fs/promises';
 import { join } from 'path';
+import { existsSync } from 'fs';
 
 export async function POST(request: NextRequest) {
   try {
@@ -36,14 +37,13 @@ export async function POST(request: NextRequest) {
     // Create uploads directory if it doesn't exist
     try {
       await writeFile(filePath, buffer);
-    } catch (error) {
+    } catch (writeError) {
       // If directory doesn't exist, create it
-      const fs = require('fs');
-      if (!fs.existsSync(uploadDir)) {
-        fs.mkdirSync(uploadDir, { recursive: true });
+      if (!existsSync(uploadDir)) {
+        await mkdir(uploadDir, { recursive: true });
         await writeFile(filePath, buffer);
       } else {
-        throw error;
+        throw writeError;
       }
     }
 

@@ -34,10 +34,7 @@ export async function PUT(
       updatedAt: new Date(),
     };
 
-    const result = await products.updateOne(
-      { id },
-      { $set: updatedProduct }
-    );
+    const result = await products.updateOne({ id }, { $set: updatedProduct });
 
     if (result.matchedCount === 0) {
       return NextResponse.json({ error: "Product not found" }, { status: 404 });
@@ -45,6 +42,7 @@ export async function PUT(
 
     return NextResponse.json({ success: true });
   } catch (error) {
+    console.error("Failed to update product:", error);
     return NextResponse.json(
       { error: "Failed to update product" },
       { status: 500 }
@@ -68,6 +66,7 @@ export async function DELETE(
 
     return NextResponse.json({ success: true });
   } catch (error) {
+    console.error("Failed to delete product:", error);
     return NextResponse.json(
       { error: "Failed to delete product" },
       { status: 500 }

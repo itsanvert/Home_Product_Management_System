@@ -8,7 +8,7 @@ export async function GET() {
     const categoryList = await categories.find({}).toArray();
 
     return NextResponse.json(categoryList);
-  } catch (error) {
+  } catch {
     return NextResponse.json(
       { error: "Failed to fetch categories" },
       { status: 500 }
@@ -34,7 +34,7 @@ export async function POST(request: NextRequest) {
     const result = await categories.insertOne(newCategory);
 
     return NextResponse.json({ ...newCategory, _id: result.insertedId });
-  } catch (error) {
+  } catch {
     return NextResponse.json(
       { error: "Failed to create category" },
       { status: 500 }

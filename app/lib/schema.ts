@@ -1,5 +1,6 @@
-import { ObjectId } from 'mongodb';
-import { pgTable, text, timestamp, varchar, decimal } from 'drizzle-orm/pg-core';
+import { ObjectId } from "mongodb";
+
+// Clean up unused variables in schema definitions
 
 // For MongoDB with Drizzle, we'll define our schema types
 export interface Category {

@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect, useRef } from "react";
+import Image from "next/image";
 import { Product, Category } from "@/app/lib/schema";
 
 interface ProductFormProps {
@@ -163,11 +164,15 @@ export default function ProductForm({
 
             {imagePreview && (
               <div className="relative inline-block">
-                <img
-                  src={imagePreview}
-                  alt="Product preview"
-                  className="w-32 h-32 object-cover rounded-lg border border-gray-300"
-                />
+                <div className="w-32 h-32 relative rounded-lg border border-gray-300 overflow-hidden">
+                  <Image
+                    src={imagePreview}
+                    alt="Product preview"
+                    fill
+                    className="object-cover"
+                    sizes="128px"
+                  />
+                </div>
                 <button
                   type="button"
                   onClick={removeImage}

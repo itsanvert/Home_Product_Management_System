@@ -106,7 +106,7 @@ export default function SearchBar({ onSearch, categories }: SearchBarProps) {
         <div className="mt-3 flex flex-wrap gap-2">
           {search && (
             <span className="inline-flex items-center px-3 py-1 rounded-full text-sm bg-blue-100 text-blue-800">
-              ស្វែងរក: "{search}"
+              ស្វែងរក: &ldquo;{search}&rdquo;
               <button
                 onClick={() => setSearch("")}
                 className="ml-2 text-blue-600 hover:text-blue-800"
