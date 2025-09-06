@@ -110,7 +110,7 @@ export default function ProductForm({
         stock: parseInt(formData.stock),
         image_url: finalImageUrl,
       });
-    } catch (error) {
+    } catch (error: unknown) {
       console.error("Form submission failed:", error);
     } finally {
       setIsUploading(false);
@@ -127,11 +127,11 @@ export default function ProductForm({
   };
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50 overflow-y-auto">
-      <div className="bg-white rounded-lg w-full max-w-2xl mx-4 my-8 max-h-[90vh] overflow-y-auto">
+    <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4 z-50 overflow-y-auto">
+      <div className="bg-white dark:bg-gray-800 rounded-lg w-full max-w-2xl mx-4 my-8 max-h-[90vh] overflow-y-auto shadow-xl">
         <div className="sticky top-0 bg-white border-b border-gray-200 px-6 py-4 rounded-t-lg">
           <div className="flex items-center justify-between">
-            <h2 className="text-xl font-bold text-gray-900">
+            <h2 className="text-xl font-bold text-gray-900 dark:text-white">
               {product ? "កែសម្រួលផលិតផល" : "បន្ថែមផលិតផលថ្មី"}
             </h2>
             <button
@@ -225,7 +225,7 @@ export default function ProductForm({
                 onChange={(e) =>
                   setFormData({ ...formData, name: e.target.value })
                 }
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-colors"
+                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-colors bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
                 placeholder="បញ្ចូលឈ្មោះផលិតផល"
               />
             </div>

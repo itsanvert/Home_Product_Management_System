@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-
+import prisma from "@/app/lib/db";
 
 export async function PUT(
   request: NextRequest,
@@ -10,11 +10,13 @@ export async function PUT(
     const body = await request.json();
     const { name, description } = body;
 
-    const updatedCategory = {
-      name,
-      description: description || "",
-      updated_at: new Date(),
-    };
+    await prisma.category.update({
+      where: { id },
+      data: {
+        name,
+        description: description || "",
+      },
+    });
 
     // TODO: Implement update query for PostgreSQL
 
@@ -38,8 +40,15 @@ export async function DELETE(
   try {
     const { id } = await params;
 
-    // TODO: Implement delete products in this category for PostgreSQL
-    // TODO: Implement delete category for PostgreSQL
+    // Delete all products in this category first
+    await prisma.product.deleteMany({
+      where: { category_id: id },
+    });
+
+    // Then delete the category
+    await prisma.category.delete({
+      where: { id },
+    });
 
     return NextResponse.json({ success: true });
   } catch (error) {
