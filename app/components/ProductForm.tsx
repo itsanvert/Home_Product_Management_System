@@ -25,8 +25,58 @@ export default function ProductForm({
     stock: "",
     image_url: "",
   });
+  const [currency, setCurrency] = useState<"$" | "៛">("$");
   const [imagePreview, setImagePreview] = useState<string>("");
   const [imageFile, setImageFile] = useState<File | null>(null);
+
+  const handleCameraCapture = async () => {
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ video: true });
+      const video = document.createElement("video");
+      video.srcObject = stream;
+      video.play();
+
+      // Create a canvas to capture the photo
+      const canvas = document.createElement("canvas");
+      const context = canvas.getContext("2d");
+
+      // Wait for video to be ready
+      await new Promise((resolve) => {
+        video.onloadedmetadata = () => {
+          canvas.width = video.videoWidth;
+          canvas.height = video.videoHeight;
+          resolve(null);
+        };
+      });
+
+      // Capture the photo
+      context?.drawImage(video, 0, 0, canvas.width, canvas.height);
+      stream.getTracks().forEach((track) => track.stop());
+
+      // Convert to blob
+      canvas.toBlob(
+        async (blob) => {
+          if (blob) {
+            const file = new File([blob], "capture.jpg", {
+              type: "image/jpeg",
+            });
+            setImageFile(file);
+            const reader = new FileReader();
+            reader.onload = (e) => {
+              const result = e.target?.result as string;
+              setImagePreview(result);
+            };
+            reader.readAsDataURL(file);
+          }
+        },
+        "image/jpeg",
+        0.9
+      );
+    } catch (error) {
+      console.error("Error accessing camera:", error);
+      alert("Could not access camera. Please check permissions.");
+    }
+  };
   const [isUploading, setIsUploading] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -106,7 +156,10 @@ export default function ProductForm({
 
       onSubmit({
         ...formData,
-        price: parseFloat(formData.price),
+        price:
+          currency === "$"
+            ? parseFloat(formData.price)
+            : parseFloat(formData.price) / 4000,
         stock: parseInt(formData.stock),
         image_url: finalImageUrl,
       });
@@ -184,16 +237,32 @@ export default function ProductForm({
             )}
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div>
+              <div className="space-y-2">
                 <label className="block text-xs font-medium text-gray-600 mb-2">
                   បង្ហោះឯកសាររូបភាព
                 </label>
+                <div className="flex gap-2">
+                  <button
+                    type="button"
+                    onClick={() => fileInputRef.current?.click()}
+                    className="flex-1 px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-colors text-sm text-center"
+                  >
+                    Select File
+                  </button>
+                  <button
+                    type="button"
+                    onClick={handleCameraCapture}
+                    className="flex-1 px-3 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-colors text-sm"
+                  >
+                    Take Photo
+                  </button>
+                </div>
                 <input
                   ref={fileInputRef}
                   type="file"
-                  accept="image/*"
+                  accept="image/jpeg,image/png"
                   onChange={handleImageFileChange}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-colors text-sm"
+                  className="hidden"
                 />
               </div>
 
@@ -270,20 +339,30 @@ export default function ProductForm({
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
-                តម្លៃ ($) *
+                តម្លៃ *
               </label>
-              <input
-                type="number"
-                step="0.01"
-                min="0"
-                required
-                value={formData.price}
-                onChange={(e) =>
-                  setFormData({ ...formData, price: e.target.value })
-                }
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-colors"
-                placeholder="0.00"
-              />
+              <div className="flex items-center gap-2">
+                <select
+                  value={currency}
+                  onChange={(e) => setCurrency(e.target.value as "$" | "៛")}
+                  className="px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-colors"
+                >
+                  <option value="$">$ (USD)</option>
+                  <option value="៛">៛ (Riel)</option>
+                </select>
+                <input
+                  type="number"
+                  step="0.01"
+                  min="0"
+                  required
+                  value={formData.price}
+                  onChange={(e) =>
+                    setFormData({ ...formData, price: e.target.value })
+                  }
+                  className="flex-1 px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-colors"
+                  placeholder={currency === "$" ? "0.00" : "0"}
+                />
+              </div>
             </div>
 
             <div>
