@@ -1,25 +1,31 @@
-import { NextRequest, NextResponse } from 'next/server';
-import { writeFile, mkdir } from 'fs/promises';
-import { join } from 'path';
-import { existsSync } from 'fs';
+import { NextRequest, NextResponse } from "next/server";
+import { writeFile, mkdir } from "fs/promises";
+import { join } from "path";
+import { existsSync } from "fs";
 
 export async function POST(request: NextRequest) {
   try {
     const data = await request.formData();
-    const file: File | null = data.get('file') as unknown as File;
+    const file: File | null = data.get("file") as unknown as File;
 
     if (!file) {
-      return NextResponse.json({ error: 'No file uploaded' }, { status: 400 });
+      return NextResponse.json({ error: "No file uploaded" }, { status: 400 });
     }
 
     // Validate file type
-    if (!file.type.startsWith('image/')) {
-      return NextResponse.json({ error: 'Only image files are allowed' }, { status: 400 });
+    if (!file.type.startsWith("image/")) {
+      return NextResponse.json(
+        { error: "Only image files are allowed" },
+        { status: 400 }
+      );
     }
 
     // Validate file size (max 5MB)
     if (file.size > 5 * 1024 * 1024) {
-      return NextResponse.json({ error: 'File size must be less than 5MB' }, { status: 400 });
+      return NextResponse.json(
+        { error: "File size must be less than 5MB" },
+        { status: 400 }
+      );
     }
 
     const bytes = await file.arrayBuffer();
@@ -27,11 +33,11 @@ export async function POST(request: NextRequest) {
 
     // Create unique filename
     const timestamp = Date.now();
-    const originalName = file.name.replace(/[^a-zA-Z0-9.-]/g, '_');
+    const originalName = file.name.replace(/[^a-zA-Z0-9.-]/g, "_");
     const filename = `${timestamp}_${originalName}`;
 
     // Save to public/uploads directory
-    const uploadDir = join(process.cwd(), 'public', 'uploads');
+    const uploadDir = join(process.cwd(), "public", "uploads");
     const filePath = join(uploadDir, filename);
 
     // Create uploads directory if it doesn't exist
@@ -48,18 +54,17 @@ export async function POST(request: NextRequest) {
     }
 
     // Return the public URL
-    const imageUrl = `/uploads/${filename}`;
-    
-    return NextResponse.json({ 
-      success: true, 
-      imageUrl,
-      filename 
-    });
+    const imageUrl = `${process.env.NEXT_PUBLIC_BASE_URL}/uploads/${filename}`;
 
+    return NextResponse.json({
+      success: true,
+      imageUrl,
+      filename,
+    });
   } catch (error) {
-    console.error('Upload error:', error);
+    console.error("Upload error:", error);
     return NextResponse.json(
-      { error: 'Failed to upload file' },
+      { error: "Failed to upload file" },
       { status: 500 }
     );
   }

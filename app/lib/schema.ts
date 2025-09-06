@@ -15,6 +15,7 @@ export interface Product {
   category_name: string;
   stock: number;
   image_url?: string;
+  currency: "USD" | "KHR";
   created_at: Date;
   updated_at: Date;
 }

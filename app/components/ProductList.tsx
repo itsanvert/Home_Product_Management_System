@@ -57,6 +57,7 @@ export default function ProductList({
                 fill
                 className="object-cover"
                 sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, (max-width: 1280px) 33vw, 25vw"
+                loader={({ src }) => src}
               />
             ) : (
               <div className="w-full h-full flex items-center justify-center text-gray-400">
@@ -112,7 +113,7 @@ export default function ProductList({
 
             <div className="flex justify-between items-center mb-4">
               <span className="text-2xl font-bold text-green-600">
-                ${product.price.toFixed(2)}
+                {product.price.toFixed(0)}៛
               </span>
             </div>
 
