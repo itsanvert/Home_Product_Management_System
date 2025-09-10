@@ -57,7 +57,6 @@ export default function ProductList({
                 fill
                 className="object-cover"
                 sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, (max-width: 1280px) 33vw, 25vw"
-                loader={({ src }) => src}
               />
             ) : (
               <div className="w-full h-full flex items-center justify-center text-gray-400">
@@ -76,6 +75,8 @@ export default function ProductList({
                 </svg>
               </div>
             )}
+
+            {/* Stock indicator */}
 
             {/* Stock indicator */}
             <div className="absolute top-2 right-2">

@@ -253,25 +253,23 @@ export default function ProductForm({
   };
 
   const uploadImageToServer = async (file: File): Promise<string> => {
-    const formData = new FormData();
-    formData.append("file", file);
+    const response = await fetch(`/api/upload-vercel?filename=${file.name}`, {
+      method: "POST",
+      body: file,
+    });
 
-    try {
-      const response = await fetch("/api/upload", {
-        method: "POST",
-        body: formData,
-      });
-
-      if (!response.ok) {
-        throw new Error("Failed to upload image");
-      }
-
-      const data = await response.json();
-      return data.imageUrl;
-    } catch (error) {
-      console.error("Image upload failed:", error);
-      throw error;
+    if (!response.ok) {
+      const errorData = await response
+        .json()
+        .catch(() => ({ message: "Image upload failed" }));
+      throw new Error(errorData.message || "Image upload failed");
     }
+
+    const newBlob = await response.json();
+    if (!newBlob.url) {
+      throw new Error("Image upload failed: No URL returned");
+    }
+    return newBlob.url;
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -285,9 +283,11 @@ export default function ProductForm({
       if (imageFile) {
         try {
           finalImageUrl = await uploadImageToServer(imageFile);
-        } catch (error) {
-          console.error("Image upload failed, continuing without image");
-          finalImageUrl = formData.image_url;
+        } catch (error: any) {
+          console.error("Image upload failed:", error);
+          alert(`Image upload failed: ${error.message}`);
+          setIsUploading(false);
+          return;
         }
       }
 
